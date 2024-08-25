@@ -4,7 +4,7 @@ FROM node:latest
 ##WDR
 WORKDIR /usr/src/app
 
-##Copy source code
+##Copy source code;
 COPY . .
 
 ##Install package

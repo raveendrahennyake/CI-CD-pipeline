@@ -1,0 +1,38 @@
+pipeline {
+    agent any 
+    
+    stages { 
+        stage('SCM Checkout') {
+            steps {
+                retry(3) {
+                    git branch: 'main', url: 'https://github.com/raveendrahennyake/CI-CD-pipeline.git'
+                }
+            }
+        }
+        stage('Build Docker Image') {
+            steps {  
+                bat 'docker build -t raveendralakshna/nodeapp-cuban:%BUILD_NUMBER% -f nodeapp/Dockerfile .'
+
+            }
+        }
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([string(credentialsId: 'raveendralakshna', variable: 'docker_hub_password')]) {
+                    bat "docker login -u raveendralakshna -p docker_hub_password"
+                }
+    
+                        
+            }
+        }
+        stage('Push Image') {
+            steps {
+                bat 'docker push raveendralakshna/nodeapp-cuban:%BUILD_NUMBER%'
+            }
+        }
+    }
+    post {
+        always {
+            bat 'docker logout'
+        }
+    }
+}
